@@ -17,13 +17,16 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
     criterias: Criteria[];
     markedItems: Criteria[];
     groups: CriteriaGroup[];
+    markedGroups: CriteriaGroup[];
   } = {
     criterias: [],
     markedItems: [],
+    markedGroups: [],
     groups: [],
   };
 
   function _listenClick(target) {
+
     target.addEventListener("click", (e) => {
       const target = e.currentTarget;
 
@@ -93,7 +96,7 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
     return criteriaGroup;
   }
 
-  function setCriteriaGroup(group: CriteriaGroup) {
+  function renderCriteriaGroup(group: CriteriaGroup, index: number) {
     const groupNode = _createCriteriaGroupNode(group);
 
     groupNode.addEventListener("click", function (e) {
@@ -104,8 +107,12 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
 
         if (target.dataset.selected === "true") {
           target.dataset.selected = "false";
+          state.markedGroups = state.markedGroups
+          .filter(value => value.id != target.dataset.id)
         } else {
           target.dataset.selected = "true";
+
+          state.markedGroups.push(group)
         }
       }
     });
@@ -116,7 +123,7 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
 
     const nameNode = document.createElement("span");
     nameNode.className = "name";
-    nameNode.appendChild(document.createTextNode("Group"));
+    nameNode.appendChild(document.createTextNode("Group " + (index + 1)));
     groupNode.appendChild(nameNode)
     
     criteriaContainer.appendChild(nodeBool);
@@ -125,22 +132,27 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
     
   }
 
-  function setCriteria(criteria: Criteria) {
-    //remove all this logic to some renderMethod
+  function renderCriteria(criteria: Criteria) {
 
     const node = _createCriteriaNode(criteria);
 
     _listenClick(node);
 
-    if (!state.criterias.some((c) => c.id == criteria.id)) {
-      criteria._node = node;
-      state.criterias.push(criteria);
-    }
+    criteria._node = node;
 
     if (criteria._node) {
       criteriaContainer.appendChild(_createCriteriaBoolNode(criteria));
       criteriaContainer.appendChild(criteria._node);
     }
+  }
+
+  function setCriteria(criteria: Criteria) {
+    
+    if (!state.criterias.some((c) => c.id == criteria.id)) {      
+        state.criterias.push(criteria);
+    }
+    
+    update();
   }
 
   function groupItems() {
@@ -180,13 +192,13 @@ export function setupGrouper(criteriaContainer: HTMLDivElement) {
     //TODO destroy all nodes and re-build them or something like that
     invalidate();
 
-    state.groups.forEach((group) => {
-      setCriteriaGroup(group);
-    });
+    state.groups.forEach((group, groupIndex) => 
+      renderCriteriaGroup(group, groupIndex)
+    );
 
     state.criterias.forEach((criteria) => {
       // console.log(criteria)
-      setCriteria(criteria);
+      renderCriteria(criteria);
     });
   }
 

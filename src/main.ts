@@ -4,6 +4,7 @@ import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="groupper">    
+    <button style="display: none;">Explain</button>
     <div class="groupper-actions">
       <button data-action="group" id="group">Group</button>
       <button data-action="ungroup" id="ungroup" disabled>Ungroup</button>
@@ -73,6 +74,21 @@ groupper.setCriteria({
 groupper.setCriteria({
   id: 5,
   column: "Status",
+  value: null,
+  boolean: "AND"
+})
+
+
+groupper.setCriteria({
+  id: 6,
+  column: "Other",
+  value: null,
+  boolean: "AND"
+})
+
+groupper.setCriteria({
+  id: 7,
+  column: "None",
   value: null,
   boolean: "AND"
 })
